@@ -9,3 +9,4 @@ from app.models.subtask import Subtask  # noqa: F401
 from app.models.submission import Submission  # noqa: F401
 from app.models.artifact import Artifact, ArtifactPurchase  # noqa: F401
 from app.models.dispute import Dispute  # noqa: F401
+from app.models.skill import Skill, SkillCategory  # noqa: F401

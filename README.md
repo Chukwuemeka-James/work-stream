@@ -89,11 +89,9 @@ cd frontend
 # Install dependencies
 npm install
 
-# Copy environment file (if not exists)
-# Create .env with:
-#   VITE_API_URL=http://localhost:8000/api
-#   VITE_WALLETCONNECT_PROJECT_ID=your-project-id
-#   VITE_BASE_SEPOLIA_RPC=https://base-sepolia-rpc.publicnode.com
+# Copy environment file and configure
+cp .env.example .env
+# Edit .env with your WalletConnect project ID (get one at https://cloud.walletconnect.com)
 
 # Start development server
 npm run dev
