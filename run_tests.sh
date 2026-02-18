@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
-
 echo "=== Running Flow Tests ==="
+
+FAILED=0
 
 # Backend tests
 echo ""
@@ -11,14 +11,20 @@ cd backend
 if [ -d "venv" ]; then
     source venv/bin/activate
 fi
-pytest -v --cov=app || echo "Backend tests completed (some may have failed due to database connectivity)"
+if ! pytest -v --cov=app; then
+    echo "Backend tests failed."
+    FAILED=1
+fi
 cd ..
 
 # Frontend tests
 echo ""
 echo "--- Frontend Tests ---"
 cd frontend
-npm test --run 2>/dev/null || echo "Frontend tests skipped (no test files yet)"
+if ! npm test -- --run; then
+    echo "Frontend tests failed."
+    FAILED=1
+fi
 cd ..
 
 # Contract tests
@@ -26,7 +32,10 @@ echo ""
 echo "--- Contract Tests ---"
 cd contracts
 if command -v forge &> /dev/null; then
-    forge test -vvv
+    if ! forge test -vvv; then
+        echo "Contract tests failed."
+        FAILED=1
+    fi
 else
     echo "Foundry not installed. Skipping contract tests."
     echo "Install with: curl -L https://foundry.paradigm.xyz | bash && foundryup"
@@ -34,4 +43,9 @@ fi
 cd ..
 
 echo ""
-echo "=== All Tests Complete ==="
+if [ $FAILED -ne 0 ]; then
+    echo "=== Some Tests Failed ==="
+    exit 1
+else
+    echo "=== All Tests Passed ==="
+fi

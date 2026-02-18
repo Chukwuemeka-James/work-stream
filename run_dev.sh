@@ -27,12 +27,24 @@ echo "=== Starting Flow Development Servers ==="
 
 cd "$SESSION_DIR"
 
-# Skip Docker postgres (using fitstudio-db)
-echo "Using existing PostgreSQL on port 5432 (fitstudio-db)"
+# Start PostgreSQL via Docker if not running
+if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q flow-postgres; then
+    echo "Starting PostgreSQL via Docker..."
+    docker-compose up -d
+    echo "Waiting for PostgreSQL to be ready..."
+    sleep 3
+else
+    echo "PostgreSQL already running."
+fi
 
 # Setup database (only if data doesn't exist)
 echo "Setting up database..."
 cd backend
+if [ ! -d "venv" ]; then
+    echo "Error: Python virtual environment not found."
+    echo "Create it with: cd backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt"
+    exit 1
+fi
 source venv/bin/activate
 # Check if users table exists and has data
 if python -c "import asyncio; from app.db.session import async_session; from sqlalchemy import text; asyncio.run(async_session().__aenter__()); async with async_session() as s: await s.execute(text('SELECT 1 FROM users LIMIT 1')); print('OK')" 2>/dev/null; then
